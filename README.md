@@ -1,2 +1,5 @@
 # MemoryGame
-Simpler GUI Game
+**Simpler GUI Game**
+
+- Memory Game/Simon Says
+
