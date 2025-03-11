@@ -57,7 +57,9 @@ public class Window extends JFrame{
 
 
     //Makes all the buttons for the current stage
-    private void makeButtons(File writer){
+    private void makeButtons(File writer) throws IOException{
+        FileWriter clear = new FileWriter(writer);
+        clear.write("");
 
         //creates the buttons and adds them to the plain
         for(int i = 0; i < (frameSize * frameSize); ++i){

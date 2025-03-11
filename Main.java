@@ -20,18 +20,16 @@ public class Main {
             
             //game loop
             while(game.getPlaying()){
-                int num = scnr.nextInt();
-                if(num == buttonCheck.get(0)){
-                    System.out.println("You got it right!");
-                }
-                else{
-                    System.out.println("wrong!");
-                    game.setLife();
+                while (scnr.hasNextInt()){
+                    if(scnr.nextInt() == buttonCheck.get(0)){
+                        System.out.println("You got it right!");
+                    }
+                    else{
+                        System.out.println("wrong!");
+                        game.setLife();
+                    }
                 }
             }
-
-            scnr.close();
-            //writer.close();
         }
         catch(IOException ioe){
             System.out.println("file failed to be made terminating process");
