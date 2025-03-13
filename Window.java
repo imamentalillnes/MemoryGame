@@ -4,19 +4,10 @@ import java.util.*;
 
 public class Window extends JFrame{
 
-    /*
-    //method to make the numslist
-    private ArrayList<Integer> makeNumsList() throws InterruptedException {
-        ArrayList<Integer> numsList = getButtons();
-        return numsList;
-    }    
-        */
-
     //Base Variables needed through the entire program
-    private int frameSize = 4;
+    final private int frameSize = 4;
     private int life = 3;
     private int level = 1;
-    private boolean playing = true;
     private JPanel basePanel = new JPanel(new BorderLayout());
     private JPanel gameField = new JPanel(new GridLayout(frameSize, frameSize));
     private JLabel lives = new JLabel("Lives: " + life);
@@ -24,21 +15,29 @@ public class Window extends JFrame{
     private int pressed = 0;
     private ArrayList<JButton> gameButtons = new ArrayList<>();
     private ArrayList<Integer> numsList;
+    private int score = 0;
+    private JLabel scoreLabel = new JLabel("Score: " + score);
+    private JPanel infoPanel = new JPanel(new GridLayout());
 
     public Window(String Name){
+
         //Calls the super constructor
         super(Name);
 
         //sets up the frame an desired 
-        this.setSize(500, 500);
+        this.setSize(500, 550);
         this.setLocation(500, 250);
         this.gameField.setPreferredSize(new Dimension(500, 500));
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setContentPane(basePanel);
-        basePanel.add(gameField, BorderLayout.CENTER);
-        basePanel.add(lives, BorderLayout.NORTH);
         this.setVisible(true);
         this.setAlwaysOnTop(true);
+
+        //Sets the game up for playing
+        basePanel.add(infoPanel, BorderLayout.NORTH);
+        infoPanel.add(lives);
+        infoPanel.add(scoreLabel);
+        basePanel.add(gameField, BorderLayout.CENTER);
 
         //calls the makeButton method
         try{
@@ -46,9 +45,7 @@ public class Window extends JFrame{
         }
         catch(InterruptedException IE){
             System.out.println(IE);
-            System.out.println("Line 44");
         }
-        
     }
 
     //Getters and Setters
@@ -56,23 +53,23 @@ public class Window extends JFrame{
         return frameSize;
     }
 
-    public void setFrameSize(int num){
-        if(frameSize < num){
-            frameSize = num;
-        }
-    }
-
-    public boolean getPlaying() {
-        if(life <= 0){
-            playing = false;
-        }
-        return playing;
-    }
-
     public void setLife(){
         if(life > 0){
             life -= 1;
         }
+
+        if(life <= 0){
+            lives.setText("Lives: Dead");
+            pressed = 0;
+            
+            for(JButton a : gameButtons){
+                a.setBackground(Color.gray);
+            }
+        }
+    }
+
+    public int getlife(){
+        return life;
     }
 
     public int getPressed(){
@@ -83,6 +80,10 @@ public class Window extends JFrame{
         return numsList.size();
     }
 
+    private void upScore() {
+        score++;
+        scoreLabel.setText("Score: " + score);
+    }
 
     //Makes all the buttons for the current stage
     private void makeButtons() throws InterruptedException{
@@ -100,12 +101,7 @@ public class Window extends JFrame{
             press.addActionListener(e -> {
 
                 if(life <= 0){
-                    lives.setText("Lives: Dead");
-                    
-                    for(JButton a : gameButtons){
-                        a.setBackground(Color.gray);
-                        a.setEnabled(false);
-                    }
+                    pressed++;
                 }
                 else{
                     if(buttonID == numsList.get(pressed)){
@@ -165,14 +161,17 @@ public class Window extends JFrame{
 
     private void showRemember(){
 
-        try{
-        //shows which buttons were chosen
-        for(int a : numsList){
-            gameButtons.get(a).setBackground(Color.YELLOW);
-            System.out.println(a);
-            Thread.sleep(1000);
+        for(JButton a : gameButtons){
+            a.setEnabled(false);
         }
-        System.out.println("nums in the list");
+
+        try{
+            //shows which buttons were chosen
+            for(int a : numsList){
+                gameButtons.get(a).setBackground(Color.YELLOW);
+                gameButtons.get(a).setEnabled(false);
+                Thread.sleep(1000);
+            }
         }
         catch(InterruptedException IE){
             System.out.println("showRemeber Error");
@@ -185,6 +184,7 @@ public class Window extends JFrame{
         //resets the button colors
         for(JButton a: gameButtons){
             a.setBackground(Color.white);
+            a.setEnabled(true);
         }
     }
 
@@ -199,20 +199,64 @@ public class Window extends JFrame{
     public void winLevel() {
 
         //once the round is Complete it resets everything and moves up a level
-            level++;
-            numsList = getButtons();
-            clean();
-            pressed = 0;
+        level++;
+        upScore();
+        numsList = getButtons();
+        clean();
+        pressed = 0;
 
-            try{
-                Thread.sleep(1000);
-                showRemember();
-            }
-            catch(InterruptedException ie){
-                System.out.println(ie);
-            }
+        try{
+            Thread.sleep(1000);
+            showRemember();
+        }
+        catch(InterruptedException ie){
+            System.out.println(ie);
+        }
+    }
+
+    //handles the win condition
+    public void winGame() throws InterruptedException{
+
+        //goes through all the buttons
+        for(JButton a : gameButtons){
+            a.setBackground(Color.MAGENTA);
+            a.setEnabled(false);
+            Thread.sleep(500);
+        }
+
+        Thread.sleep(2000);
+
+        //makes a new panel
+        JPanel winPanel = new JPanel();
+        JLabel winLabel = new JLabel("YOU WIN!!!");
+        winLabel.setSize(24,24);
+
+        //adds the new panels over the old ones
+        this.setContentPane(winPanel);
+        winLabel.add(winLabel);
 
     }
 
-    
+    //resets all need components of the game
+    public void gameRestart() {
+
+        //resets life
+        life = 3;
+        lives.setText("Lives: " + life);
+
+        //resets score
+        score = 0;
+        scoreLabel.setText("Score: " + score);
+
+        //resets level
+        level = 1;
+
+        //gets new buttons to remember
+        numsList = getButtons();
+
+        //cleans the field
+        clean();
+        pressed = 0;
+        showRemember();
+    }
 }
